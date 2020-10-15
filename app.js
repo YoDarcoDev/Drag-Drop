@@ -2,19 +2,23 @@ let base = document.querySelector('.base');
 const premiereCase = document.getElementById('premiere-case');
 const boxs = document.querySelectorAll('.case');
 const destroy = document.querySelector('.destroy');
-const allCases = [];     // Ttes les cases + poubelle
+const allCases = [];     // Toutes les cases + poubelle
+const choix = [];
+let photoEnCours;
 
 
-
-for(i = 0; i < boxs.length; i++){
+for (i = 0; i < boxs.length; i++) {    // push chaque image dans le tableau AllCases
     allCases.push(boxs[i]);
 }
-// console.log(allCases)
+    // console.log(allCases)
+    allCases.push(destroy);            // permet d'ajouter event (dragover, dragenter, drop) sur notre case destroy
+    // console.log(allCases)
 
 
 let indexPhoto = 1;
-
 base.style.backgroundImage = `url(https://loremflickr.com/320/240?random=${indexPhoto})`;
+photoEnCours = `url(https://loremflickr.com/320/240?random=${indexPhoto})`;
+
 
 
 for (const vide of allCases) {                         // Pour toutes les cases dans allCases
@@ -25,11 +29,39 @@ for (const vide of allCases) {                         // Pour toutes les cases 
 
 
 
-
 function dragDrop() {
 
-    console.log("ici")
-    this.appendChild(document.querySelector('.base'));                 // this => élément que l'on survole dans lequel on veut mettre image 
+    // RETURN si on pose sur la case id (premiere-case)
+    if (this.id === "premiere-case") {     // this = endroit où on va lacher notre élément
+        return;
+    }
+
+    // console.log(this.id === "destroy");
+    // DESTROY si on pose sur la case id (destroy)
+    if (this.id === "destroy") {  
+        base.remove();
+        nouvelleBase();
+        return;
+    }
+
+
+    // VERROUILLAGE (enlever eventListener)
+    this.removeEventListener('drop', dragDrop);
+    this.removeEventListener('dragenter', dragEnter);
+    this.removeEventListener('dragover', dragOver);
+
+    this.appendChild(document.querySelector('.base'));          // this => élément que l'on survole dans lequel on veut mettre image 
+    this.childNodes[0].setAttribute('draggable', false);        // div que l'on vient de poser avec img, on lui change l'attr
+    nouvelleBase();
+
+    choix.push(photoEnCours);
+
+    if (choix.length === 3) {
+        setTimeout(() => {
+            alert("Sélection terminée");
+        }, 200)
+    }
+
 }
 
 
@@ -38,12 +70,26 @@ function dragOver(e) {
     e.preventDefault();
 }
 
+
+
 function dragEnter(e) {
     e.preventDefault();
 }
 
 
+// FONCTION QUI REMPLACE BASE PAR NEWBASE 
 
+function nouvelleBase() {
+
+    const newBase = document.createElement('div');
+    newBase.setAttribute('class', 'base');
+    newBase.setAttribute('draggable', 'true');
+    indexPhoto ++;
+    newBase.style.backgroundImage = `url(https://loremflickr.com/320/240?random=${indexPhoto})`;
+    photoEnCours = `url(https://loremflickr.com/320/240?random=${indexPhoto})`;
+    premiereCase.appendChild(newBase);
+    base = newBase;
+}
 
 
 
